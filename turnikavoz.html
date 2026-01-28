@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turnos en Voz</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    #turno {
+      font-size: 84px;
+      font-weight: bold;
+      margin: 30px 0;
+      color: #005fcc;
+    }
+
+    .fila {
+      font-size: 20px;
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    .grupo {
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 14px 22px;
+      margin: 6px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #0078d4;
+      color: white;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .secundario {
+      background: #6c757d;
+    }
+
+    .velocidad {
+      background: #adb5bd;
+      color: #000;
+    }
+
+    .velocidad.activa {
+      background: #198754;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Control de Turnos</h1>
+
+  <div id="turno">0</div>
+  <div class="fila">Cajas</div>
+
+  <div class="grupo">
+    <button onclick="anterior()">◀ Anterior</button>
+    <button onclick="siguiente()">Siguiente ▶</button>
+  </div>
+
+  <div class="grupo">
+    <button class="velocidad activa" id="vel1" onclick="setVelocidad(1)">X1</button>
+    <button class="velocidad" id="vel3" onclick="setVelocidad(3)">X3</button>
+  </div>
+
+  <div class="grupo">
+    <button onclick="llamarTurno()">🔊 Llamar</button>
+    <button class="secundario" onclick="repetirTurno()">🔁 Repetir</button>
+  </div>
+
+<script>
+  let turnoActual = Number(localStorage.getItem("turnoActual")) || 0;
+  let velocidad = 1;
+  let bloqueado = false;
+
+  function mostrarTurno() {
+    document.getElementById("turno").innerText = turnoActual;
+    localStorage.setItem("turnoActual", turnoActual);
+  }
+
+  function ejecutarSeguro(accion) {
+    if (bloqueado) return;
+    bloqueado = true;
+
+    accion();
+
+    setTimeout(() => {
+      bloqueado = false;
+    }, 250); // evita rebotes táctiles
+  }
+
+  function siguiente() {
+    ejecutarSeguro(() => {
+      turnoActual = Math.min(1000, turnoActual + velocidad);
+      mostrarTurno();
+    });
+  }
+
+  function anterior() {
+    ejecutarSeguro(() => {
+      turnoActual = Math.max(0, turnoActual - velocidad);
+      mostrarTurno();
+    });
+  }
+
+  function setVelocidad(v) {
+    velocidad = v;
+    document.getElementById("vel1").classList.remove("activa");
+    document.getElementById("vel3").classList.remove("activa");
+    document.getElementById("vel" + v).classList.add("activa");
+  }
+
+  function llamarTurno() {
+    const texto = `Turno ${numeroATexto(turnoActual)}, cajas, pasar a la fila.`;
+    const msg = new SpeechSynthesisUtterance(texto);
+    msg.lang = "es-MX";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+  }
+
+  function repetirTurno() {
+    llamarTurno();
+  }
+
+  function numeroATexto(n) {
+    return new Intl.NumberFormat("es-MX").format(n);
+  }
+
+  mostrarTurno();
+</script>
+
+</body>
+</html>
