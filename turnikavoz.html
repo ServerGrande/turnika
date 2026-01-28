@@ -132,7 +132,7 @@
   }
 
   function llamarTurno() {
-    const texto = `Turno ${numeroATexto(turnoActual)}, cajas, pasar a la fila.`;
+    const texto = `C ${numeroATexto(turnoActual)}, Pasar a fila.`;
     const msg = new SpeechSynthesisUtterance(texto);
     msg.lang = "es-MX";
     speechSynthesis.cancel();
