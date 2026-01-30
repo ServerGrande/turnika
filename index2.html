@@ -55,13 +55,17 @@
       background: #6c757d;
     }
 
+    .mensaje {
+      background: #198754;
+    }
+
     .velocidad {
       background: #adb5bd;
       color: #000;
     }
 
     .velocidad.activa {
-      background: #198754;
+      background: #0d6efd;
       color: white;
     }
   </style>
@@ -87,12 +91,14 @@
   <div class="grupo">
     <button onclick="llamarTurno()">🔊 Llamar</button>
     <button class="secundario" onclick="repetirTurno()">🔁 Repetir</button>
+    <button class="mensaje" onclick="mensajePublico()">📢 Mensaje público</button>
   </div>
 
 <script>
   let turnoActual = Number(localStorage.getItem("turnoActual")) || 0;
   let velocidad = 1;
   let bloqueado = false;
+  const LIMITE_TURNO = 2000;
 
   function mostrarTurno() {
     document.getElementById("turno").innerText = turnoActual;
@@ -102,17 +108,13 @@
   function ejecutarSeguro(accion) {
     if (bloqueado) return;
     bloqueado = true;
-
     accion();
-
-    setTimeout(() => {
-      bloqueado = false;
-    }, 250); // evita rebotes táctiles
+    setTimeout(() => bloqueado = false, 250);
   }
 
   function siguiente() {
     ejecutarSeguro(() => {
-      turnoActual = Math.min(1000, turnoActual + velocidad);
+      turnoActual = Math.min(LIMITE_TURNO, turnoActual + velocidad);
       mostrarTurno();
     });
   }
@@ -132,15 +134,24 @@
   }
 
   function llamarTurno() {
-    const texto = `Cajas ${numeroATexto(turnoActual)}, Pasar a fila.`;
-    const msg = new SpeechSynthesisUtterance(texto);
-    msg.lang = "es-MX";
-    speechSynthesis.cancel();
-    speechSynthesis.speak(msg);
+    const texto = `Cajas ${numeroATexto(turnoActual)}, pasar a fila.`;
+    hablar(texto);
   }
 
   function repetirTurno() {
     llamarTurno();
+  }
+
+  function mensajePublico() {
+    const texto = `Contribuyente, si tu turno no es para pasar a cajas, por favor poner atención a la pantalla en la parte superior, para verificar en qué turno va, y en qué módulo te atenderán. Por tu atención, gracias.`;
+    hablar(texto);
+  }
+
+  function hablar(texto) {
+    const msg = new SpeechSynthesisUtterance(texto);
+    msg.lang = "es-MX";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
   }
 
   function numeroATexto(n) {
