@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Turnos en Voz</title>
+  <title>Control de Turnos</title>
 
   <style>
     body {
@@ -92,6 +92,7 @@
     <button onclick="llamarTurno()">🔊 Llamar</button>
     <button class="secundario" onclick="repetirTurno()">🔁 Repetir</button>
     <button class="mensaje" onclick="mensajePublico()">📢 Mensaje público</button>
+    <button class="secundario" onclick="iniciarEnCero()">⏮️ Iniciar en 0</button>
   </div>
 
 <script>
@@ -147,6 +148,16 @@
     hablar(texto);
   }
 
+  function iniciarEnCero() {
+    const confirmar = confirm("¿Estás seguro que deseas reiniciar el contador?");
+    if (!confirmar) return;
+
+    ejecutarSeguro(() => {
+      turnoActual = 0;
+      mostrarTurno();
+    });
+  }
+
   function hablar(texto) {
     const msg = new SpeechSynthesisUtterance(texto);
     msg.lang = "es-MX";
@@ -163,6 +174,5 @@
 
 </body>
 </html>
-
 
 
